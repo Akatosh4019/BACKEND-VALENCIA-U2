@@ -26,6 +26,13 @@ class ReglasTest {
     private fun autenticar(nombre: String) { val u=usuarios.findByUsuario(nombre)!!; SecurityContextHolder.getContext().authentication=UsernamePasswordAuthenticationToken(nombre,null,u.rol.privilegios.map { SimpleGrantedAuthority(it.name) }) }
     private fun request(id: Long,tipo: TipoLabor=TipoLabor.RIEGO,cantidad: Double=1.0)=LaborRequest(id,tipo,"2026-10-27",cantidad,"Prueba")
     @AfterEach fun salir()=SecurityContextHolder.clearContext()
+    @Test fun supervisorCorrigeAjenasPeroNoCierra() {
+        autenticar("supervisor1")
+        val labor=labores.findAll().first { !lotes.findById(it.loteId).get().campaniaCerrada }
+        assertEquals(labor.id,servicio.corregir(labor.id,request(labor.loteId),"supervisor1").id)
+        assertThrows(org.springframework.security.access.AccessDeniedException::class.java) { servicio.cerrar(labor.loteId) }
+        assertThrows(org.springframework.security.access.AccessDeniedException::class.java) { servicio.crear(request(labor.loteId),"supervisor1") }
+    }
     @Test fun bloqueaLaborEnCampaniaCerrada() { autenticar("tecnico1");val id=lotes.findAll().first { it.campaniaCerrada }.id;assertEquals(409,assertThrows(Fallo::class.java) { servicio.crear(request(id),"tecnico1") }.status) }
     @Test fun limitaDosisConErrorEnCantidad() { autenticar("tecnico1");val id=lotes.findAll().first { !it.campaniaCerrada }.id;val e=assertThrows(Fallo::class.java) { servicio.crear(request(id,TipoLabor.FUMIGACION,99999.0),"tecnico1") };assertEquals(400,e.status);assertTrue(e.campos.containsKey("cantidad")) }
     @Test fun noCierraSinCosecha() { autenticar("jefe1");val id=lotes.findAll().first { !it.campaniaCerrada && !labores.existsByLoteIdAndTipo(it.id,TipoLabor.COSECHA) }.id;assertEquals(409,assertThrows(Fallo::class.java) { servicio.cerrar(id) }.status) }

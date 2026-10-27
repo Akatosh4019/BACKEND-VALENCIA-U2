@@ -16,8 +16,9 @@ class DatosSemilla(private val roles: RolRepository,private val usuarios: Usuari
     override fun run(vararg args: String) {
         val tecnico=roles.findById("TECNICO").orElseGet { roles.save(Rol("TECNICO",mutableSetOf(LOTE_LEER,LABOR_LEER,LABOR_CREAR,LABOR_EDITAR))) }
         val jefe=roles.findById("JEFE_CAMPO").orElseGet { roles.save(Rol("JEFE_CAMPO",mutableSetOf(LOTE_LEER,LABOR_LEER,LABOR_CREAR,LABOR_EDITAR,LABOR_ELIMINAR,CAMPANIA_CERRAR),true)) }
+        val supervisor=roles.findById("SUPERVISOR_CALIDAD").orElseGet { roles.save(Rol("SUPERVISOR_CALIDAD",mutableSetOf(LOTE_LEER,LABOR_LEER,LABOR_EDITAR),true)) }
         val admin=roles.findById("ADMINISTRADOR").orElseGet { roles.save(Rol("ADMINISTRADOR",mutableSetOf(LOTE_LEER,LABOR_LEER,USUARIO_GESTIONAR))) }
-        listOf(Triple("tecnico1","Técnico de campo",tecnico),Triple("jefe1","Jefe de campo",jefe),Triple("admin","Administrador",admin)).forEach { (login,nombre,rol) ->
+        listOf(Triple("tecnico1","Técnico de campo",tecnico),Triple("jefe1","Jefe de campo",jefe),Triple("admin","Administrador",admin),Triple("supervisor1","Supervisor de calidad",supervisor)).forEach { (login,nombre,rol) ->
             if(usuarios.findByUsuario(login)==null) usuarios.save(Usuario(usuario=login,nombre=nombre,passwordHash=requireNotNull(encoder.encode("Agro2026*")),rol=rol))
         }
         if(lotes.count()>0) return
@@ -32,4 +33,5 @@ class DatosSemilla(private val roles: RolRepository,private val usuarios: Usuari
         }
     }
 }
+
 
