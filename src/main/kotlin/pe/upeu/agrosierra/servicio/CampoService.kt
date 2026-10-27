@@ -37,6 +37,7 @@ class CampoService(private val lotes: LoteRepository, private val labores: Labor
         if (lote.campaniaCerrada) throw Fallo(409,"La campaña está cerrada; no puede registrar ni corregir labores")
         try { LocalDate.parse(r.fecha) } catch (_: Exception) { throw Fallo(400,"Fecha inválida",mapOf("fecha" to "Use una fecha ISO válida: AAAA-MM-DD")) }
         if (!r.cantidad.isFinite() || r.cantidad <= 0) throw Fallo(400,"Cantidad inválida",mapOf("cantidad" to "La cantidad debe ser mayor que cero"))
+        if (!r.jornales.isFinite() || r.jornales < 0) throw Fallo(400,"Jornales inválidos",mapOf("jornales" to "Ingrese cero o un valor positivo"))
         if (r.tipo == TipoLabor.FUMIGACION && r.cantidad > lote.hectareas * lote.dosisMaximaPorHectarea)
             throw Fallo(400,"La cantidad supera la dosis permitida",mapOf("cantidad" to "Máximo permitido: ${lote.hectareas * lote.dosisMaximaPorHectarea}"))
     }
@@ -48,7 +49,7 @@ class CampoService(private val lotes: LoteRepository, private val labores: Labor
             return it
         } }
         val lote=buscar(r.loteId); validar(lote,r)
-        return labores.save(Labor(loteId=r.loteId,tipo=r.tipo,fecha=r.fecha,responsable=u.nombre,autorId=u.id,cantidad=r.cantidad,observacion=r.observacion,claveCliente=r.claveCliente))
+        return labores.save(Labor(loteId=r.loteId,tipo=r.tipo,fecha=r.fecha,responsable=u.nombre,autorId=u.id,cantidad=r.cantidad,observacion=r.observacion,jornales=r.jornales,claveCliente=r.claveCliente))
     }
     @PreAuthorize("hasAuthority('LABOR_EDITAR')")
     fun corregir(id: Long,r: LaborRequest,username: String): Labor {
@@ -58,7 +59,7 @@ class CampoService(private val lotes: LoteRepository, private val labores: Labor
             throw Fallo(403,"Solo puede corregir sus labores dentro de las primeras 24 horas")
         if (labor.loteId != r.loteId) throw Fallo(400,"No puede cambiar el lote",mapOf("loteId" to "Conserve el lote original"))
         validar(buscar(labor.loteId),r)
-        labor.tipo=r.tipo; labor.fecha=r.fecha; labor.cantidad=r.cantidad; labor.observacion=r.observacion
+        labor.tipo=r.tipo; labor.fecha=r.fecha; labor.cantidad=r.cantidad; labor.observacion=r.observacion; labor.jornales=r.jornales
         return labores.save(labor)
     }
     @PreAuthorize("hasAuthority('LABOR_ELIMINAR')")

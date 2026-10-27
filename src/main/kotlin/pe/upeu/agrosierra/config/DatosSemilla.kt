@@ -28,7 +28,7 @@ class DatosSemilla(private val roles: RolRepository,private val usuarios: Usuari
             val lote=lotes.save(Lote(codigo="LOT-${n.toString().padStart(3,'0')}",nombre="Parcela $n",hectareas=2.0+n,cultivo=if(n%2==0) "Papa" else "Maíz",valle=valles[(n-1)%3],campaniaCerrada=n>=7,dosisMaximaPorHectarea=5.0))
             val cantidad=if(n<=4) 3 else 2
             (1..cantidad).forEach { k ->
-                labores.save(Labor(loteId=lote.id,tipo=if(n==1 && k==1) TipoLabor.COSECHA else if(k==2) TipoLabor.FUMIGACION else TipoLabor.RIEGO,fecha=LocalDate.now().minusDays(k.toLong()).toString(),responsable=autor.nombre,autorId=autor.id,cantidad=2.0,observacion="Labor semilla $n-$k"))
+                labores.save(Labor(loteId=lote.id,tipo=if(n==1 && k==1) TipoLabor.COSECHA else if(k==2) TipoLabor.FUMIGACION else TipoLabor.RIEGO,fecha=LocalDate.now().minusDays(k.toLong()).toString(),responsable=autor.nombre,autorId=autor.id,cantidad=2.0,jornales=1.5,observacion="Labor semilla $n-$k"))
             }
         }
     }

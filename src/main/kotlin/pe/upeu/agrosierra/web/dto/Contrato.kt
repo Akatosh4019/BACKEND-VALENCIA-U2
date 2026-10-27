@@ -15,6 +15,7 @@ data class LaborRequest(
     @field:NotBlank val fecha: String = "",
     @field:Positive val cantidad: Double = 0.0,
     @field:Size(max = 500) val observacion: String = "",
+    @field:PositiveOrZero val jornales: Double = 0.0,
     @field:Size(max = 100) val claveCliente: String? = null,
 )
 data class Pagina<T>(val contenido: List<T>, val pagina: Int, val tamanio: Int, val totalElementos: Long, val totalPaginas: Int, val ultima: Boolean)
