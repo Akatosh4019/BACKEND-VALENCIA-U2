@@ -1,0 +1,1 @@
+SC-C incorpora jornales (Double no negativo) en la entidad persistida, petición, respuesta y semillas. El valor inicial para filas previas es cero; las semillas nuevas usan 1.5. Ocho pruebas Maven aprobadas, incluida creación y corrección con jornales y rechazo de valores negativos. La app debe usar el mismo campo jornales.
