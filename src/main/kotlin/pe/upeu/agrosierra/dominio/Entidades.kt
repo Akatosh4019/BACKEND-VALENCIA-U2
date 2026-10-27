@@ -27,6 +27,7 @@ class Labor(
     var autorId: Long = 0,
     var cantidad: Double = 0.0,
     var observacion: String = "",
+    @Column(nullable = false, columnDefinition = "double precision default 0") var jornales: Double = 0.0,
     var registradaEn: Instant = Instant.now(),
     // Idempotencia de altas: un reintento tras perder la respuesta no duplica la labor.
     @Column(unique = true) var claveCliente: String? = null,
