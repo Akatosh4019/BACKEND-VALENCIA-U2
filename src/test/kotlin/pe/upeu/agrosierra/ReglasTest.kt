@@ -26,6 +26,14 @@ class ReglasTest {
     private fun autenticar(nombre: String) { val u=usuarios.findByUsuario(nombre)!!; SecurityContextHolder.getContext().authentication=UsernamePasswordAuthenticationToken(nombre,null,u.rol.privilegios.map { SimpleGrantedAuthority(it.name) }) }
     private fun request(id: Long,tipo: TipoLabor=TipoLabor.RIEGO,cantidad: Double=1.0)=LaborRequest(id,tipo,"2026-10-27",cantidad,"Prueba")
     @AfterEach fun salir()=SecurityContextHolder.clearContext()
+    @Test fun conservaJornalesAlCrearYCorregir() {
+        autenticar("tecnico1")
+        val id=lotes.findAll().first { !it.campaniaCerrada }.id
+        val creada=servicio.crear(request(id).copy(jornales=2.5),"tecnico1")
+        assertEquals(2.5,creada.jornales)
+        assertEquals(3.0,servicio.corregir(creada.id,request(id).copy(jornales=3.0),"tecnico1").jornales)
+        assertEquals(400,assertThrows(Fallo::class.java) { servicio.crear(request(id).copy(jornales=-1.0),"tecnico1") }.status)
+    }
     @Test fun supervisorCorrigeAjenasPeroNoCierra() {
         autenticar("supervisor1")
         val labor=labores.findAll().first { !lotes.findById(it.loteId).get().campaniaCerrada }
