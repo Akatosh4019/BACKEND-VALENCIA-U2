@@ -1,0 +1,14 @@
+name: agrosierra-examen-u2
+services:
+  api:
+    build: .
+    ports:
+      - "127.0.0.1:8082:8080"
+    environment:
+      JWT_SECRET: ${JWT_SECRET:?Crear .env con JWT_SECRET}
+      SPRING_DATASOURCE_URL: jdbc:h2:file:/datos/agrosierra;DB_CLOSE_ON_EXIT=FALSE
+    volumes:
+      - agro-datos:/datos
+    restart: unless-stopped
+volumes:
+  agro-datos:
